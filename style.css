@@ -292,3 +292,31 @@ body {
     opacity: 0.4;
     cursor: not-allowed;
 }
+
+/* Test Notification Button */
+.test-notify-btn {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    padding: 0.6rem 1.5rem;
+    min-height: 44px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s;
+    font-family: var(--font-jp);
+}
+
+.test-notify-btn:hover {
+    background: rgba(74, 222, 128, 0.2);
+    transform: translateY(-1px);
+}
+
+.test-notify-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}

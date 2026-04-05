@@ -376,6 +376,58 @@ function updateNotificationButton(enabled) {
   btn.classList.toggle('off', !enabled);
 }
 
+// テスト通知をすぐに送信
+async function sendTestNotification() {
+  const testBtn = document.getElementById('test-notification-btn');
+  if (!('Notification' in window)) {
+    alert('このブラウザは通知をサポートしていません。');
+    return;
+  }
+
+  testBtn.disabled = true;
+  testBtn.textContent = '⏳ 送信中...';
+
+  try {
+    let perm = Notification.permission;
+    if (perm === 'default') {
+      perm = await Notification.requestPermission();
+    }
+
+    if (perm === 'granted') {
+      // Service Worker 経由ならSW、なければ直接 Notification
+      const swReg = await navigator.serviceWorker.getRegistration().catch(() => null);
+      if (swReg) {
+        await swReg.showNotification('よむ、2分。', {
+          body: '通知テスト成功！毎朝7時にこの通知が届きます。',
+          tag: 'test-notification',
+          icon: '/icon-192.png'
+        });
+      } else {
+        new Notification('よむ、2分。', {
+          body: '通知テスト成功！毎朝7時にこの通知が届きます。'
+        });
+      }
+      testBtn.textContent = '✅ 送信しました！';
+      setTimeout(() => {
+        testBtn.textContent = '🔔 今すぐテスト送信';
+        testBtn.disabled = false;
+      }, 3000);
+    } else {
+      testBtn.textContent = '❌ 通知が許可されていません';
+      setTimeout(() => {
+        testBtn.textContent = '🔔 今すぐテスト送信';
+        testBtn.disabled = false;
+      }, 3000);
+    }
+  } catch (e) {
+    testBtn.textContent = '⚠️ エラーが発生しました';
+    setTimeout(() => {
+      testBtn.textContent = '🔔 今すぐテスト送信';
+      testBtn.disabled = false;
+    }, 3000);
+  }
+}
+
 // =====================================================================
 // 初期化
 // =====================================================================
@@ -395,6 +447,7 @@ function init() {
   renderQuestion();
   nextBtn.addEventListener('click', handleNext);
   document.getElementById('notification-toggle').addEventListener('click', toggleNotification);
+  document.getElementById('test-notification-btn').addEventListener('click', sendTestNotification);
   initNotifications();
 }
 

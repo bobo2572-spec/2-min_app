@@ -327,10 +327,17 @@ function handleNext() {
 function diagNotification() {
   const hasNotification = 'Notification' in window;
   const hasSW = 'serviceWorker' in navigator;
-  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  const ua = navigator.userAgent;
+  const isIOS = /iP(hone|ad|od)/.test(ua);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     || window.navigator.standalone === true;
-  return { hasNotification, hasSW, isIOS, isStandalone };
+  // iOSバージョンを取得 ("OS 17_1" 形式から)
+  let iosVersion = null;
+  if (isIOS) {
+    const m = ua.match(/OS (\d+)_(\d+)/);
+    if (m) iosVersion = parseFloat(`${m[1]}.${m[2]}`);
+  }
+  return { hasNotification, hasSW, isIOS, isStandalone, iosVersion };
 }
 
 function notificationSupported() {
@@ -342,9 +349,12 @@ async function initNotifications() {
   const d = diagNotification();
 
   if (!d.hasNotification || !d.hasSW) {
-    // iOS でホーム画面未追加の場合は専用メッセージ
     if (d.isIOS && !d.isStandalone) {
+      // Safari直开き → ホーム画面追加誘導
       updateNotificationButton('ios-hint');
+    } else if (d.isIOS && d.iosVersion !== null && d.iosVersion < 16.4) {
+      // iOSバージョン不足
+      updateNotificationButton('ios-old');
     } else {
       updateNotificationButton(null);
     }
@@ -394,7 +404,7 @@ async function toggleNotification() {
   }
 }
 
-// enabled: true→ON, false→OFF, null→非対応, 'ios-hint'→iOS誘導
+// enabled: true→ON, false→OFF, null→非対応, 'ios-hint'→iOS誘導, 'ios-old'→バージョン不足
 function updateNotificationButton(enabled) {
   const btn = document.getElementById('notification-toggle');
   if (!btn) return;
@@ -402,12 +412,21 @@ function updateNotificationButton(enabled) {
     btn.textContent = '通知 非対応';
     btn.classList.add('off');
     btn.style.opacity = '0.45';
+    btn.style.fontSize = '';
     return;
   }
   if (enabled === 'ios-hint') {
     btn.textContent = '📲 ホーム画面から起動で通知ON';
     btn.classList.add('off');
     btn.style.opacity = '0.85';
+    btn.style.fontSize = '0.7rem';
+    return;
+  }
+  if (enabled === 'ios-old') {
+    const d = diagNotification();
+    btn.textContent = `iOS ${d.iosVersion ?? '?'} → 16.4以上が必要`;
+    btn.classList.add('off');
+    btn.style.opacity = '0.7';
     btn.style.fontSize = '0.7rem';
     return;
   }

@@ -29,6 +29,8 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 20px;
+    /* iOS ホームインジケーター分の余白を確保 */
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
 }
 
 #app {
@@ -247,6 +249,7 @@ body {
 .app-footer {
     text-align: center;
     margin-top: 2rem;
+    margin-bottom: 1.5rem;
     color: var(--text-secondary);
     font-size: 0.75rem;
     display: flex;
@@ -260,11 +263,14 @@ body {
     background: transparent;
     border: 1px solid rgba(56, 189, 248, 0.4);
     color: var(--accent-color);
-    padding: 0.4rem 1.25rem;
+    padding: 0.6rem 1.5rem;   /* タップ領域を広く */
+    min-height: 44px;          /* Apple 推奨最小タップターゲット */
     border-radius: 9999px;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
+    touch-action: manipulation; /* iOS ダブルタップ遅延を除去 */
+    -webkit-tap-highlight-color: transparent;
     transition: all 0.2s;
     font-family: var(--font-jp);
 }

@@ -322,13 +322,32 @@ function handleNext() {
 // =====================================================================
 // 通知機能
 // =====================================================================
+
+// 通知対応状況を詳しく診断
+function diagNotification() {
+  const hasNotification = 'Notification' in window;
+  const hasSW = 'serviceWorker' in navigator;
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  return { hasNotification, hasSW, isIOS, isStandalone };
+}
+
 function notificationSupported() {
-  return ('serviceWorker' in navigator) && ('Notification' in window);
+  const d = diagNotification();
+  return d.hasNotification && d.hasSW;
 }
 
 async function initNotifications() {
-  if (!notificationSupported()) {
-    updateNotificationButton(null); // 非対応表示
+  const d = diagNotification();
+
+  if (!d.hasNotification || !d.hasSW) {
+    // iOS でホーム画面未追加の場合は専用メッセージ
+    if (d.isIOS && !d.isStandalone) {
+      updateNotificationButton('ios-hint');
+    } else {
+      updateNotificationButton(null);
+    }
     return;
   }
 
@@ -354,7 +373,7 @@ async function initNotifications() {
 }
 
 async function toggleNotification() {
-  if (!notificationSupported()) return; // 非対応環境では何もしない
+  if (!notificationSupported()) return;
 
   const appData = loadData();
   const newState = !(appData.notificationsEnabled !== false);
@@ -375,7 +394,7 @@ async function toggleNotification() {
   }
 }
 
-// enabled: true → ON, false → OFF, null → 非対応
+// enabled: true→ON, false→OFF, null→非対応, 'ios-hint'→iOS誘導
 function updateNotificationButton(enabled) {
   const btn = document.getElementById('notification-toggle');
   if (!btn) return;
@@ -385,17 +404,33 @@ function updateNotificationButton(enabled) {
     btn.style.opacity = '0.45';
     return;
   }
+  if (enabled === 'ios-hint') {
+    btn.textContent = '📲 ホーム画面から起動で通知ON';
+    btn.classList.add('off');
+    btn.style.opacity = '0.85';
+    btn.style.fontSize = '0.7rem';
+    return;
+  }
   btn.textContent = enabled ? '通知 ON' : '通知 OFF';
   btn.classList.toggle('off', !enabled);
   btn.style.opacity = '';
+  btn.style.fontSize = '';
 }
 
 // テスト通知をすぐに送信
 async function sendTestNotification() {
   const testBtn = document.getElementById('test-notification-btn');
-  if (!notificationSupported()) {
-    testBtn.textContent = 'iOSはSafari PWAのみ対応';
-    setTimeout(() => { testBtn.textContent = '🔔 今すぐテスト送信'; }, 4000);
+  const d = diagNotification();
+
+  if (!d.hasNotification) {
+    if (d.isIOS && !d.isStandalone) {
+      testBtn.textContent = '📲 Safariで「ホーム画面に追加」してください';
+    } else if (d.isIOS) {
+      testBtn.textContent = 'iOS 16.4以上が必要です';
+    } else {
+      testBtn.textContent = '通知非対応のブラウザです';
+    }
+    setTimeout(() => { testBtn.textContent = '🔔 今すぐテスト送信'; }, 5000);
     return;
   }
 

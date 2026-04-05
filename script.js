@@ -325,7 +325,6 @@ function handleNext() {
 async function initNotifications() {
   if (!('serviceWorker' in navigator) || !('Notification' in window)) {
     updateNotificationButton(false);
-    document.getElementById('notification-toggle').disabled = true;
     return;
   }
 

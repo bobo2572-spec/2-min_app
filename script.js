@@ -121,7 +121,11 @@ function loadData() {
 }
 
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // プライベートブラウズ・ストレージ制限時は保存しないが処理は継続
+  }
 }
 
 // =====================================================================
@@ -336,8 +340,8 @@ async function toggleNotification() {
   const appData = loadData();
   const newState = !(appData.notificationsEnabled !== false);
   appData.notificationsEnabled = newState;
+  updateNotificationButton(newState); // saveData より先に UI 更新
   saveData(appData);
-  updateNotificationButton(newState);
 
   const sw = await navigator.serviceWorker.ready.catch(() => null);
   if (!sw?.active) return;

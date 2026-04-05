@@ -394,6 +394,7 @@ function init() {
 
   renderQuestion();
   nextBtn.addEventListener('click', handleNext);
+  document.getElementById('notification-toggle').addEventListener('click', toggleNotification);
   initNotifications();
 }
 

@@ -155,7 +155,7 @@ function getPrevAppDate(dateStr) {
 }
 
 // =====================================================================
-// streak 計算
+// streak 計算（当日の初回回答時のみ更新）
 // =====================================================================
 function calcNewStreak(data, today) {
   const last = data.lastAnsweredDate;
@@ -185,13 +185,13 @@ const resultBadge     = document.getElementById('result-badge');
 const evidenceText    = document.getElementById('evidence-text');
 const tipText         = document.getElementById('tip-text');
 const nextBtn         = document.getElementById('next-btn');
-const quizCard        = document.getElementById('quiz-card');
-const alreadyCard     = document.getElementById('already-answered-card');
 const streakBadge     = document.getElementById('streak-badge');
 const streakCount     = document.getElementById('streak-count');
+const dailyCountEl    = document.getElementById('daily-count');
+const dailyCountNum   = document.getElementById('daily-count-num');
 
 // =====================================================================
-// streak 表示
+// stats 表示
 // =====================================================================
 function renderStreak(streak) {
   if (!streak || streak <= 0) {
@@ -202,22 +202,13 @@ function renderStreak(streak) {
   streakCount.textContent = streak;
 }
 
-// =====================================================================
-// 当日回答済み表示
-// =====================================================================
-function renderAlreadyAnswered(logEntry) {
-  quizCard.classList.add('hidden');
-  alreadyCard.classList.remove('hidden');
-
-  const q = quizData.find(d => d.id === logEntry.questionId);
-  if (!q) return;
-
-  document.getElementById('already-tags').innerHTML = `
-    <span class="tag">${q.genre}</span>
-    <span class="tag">${q.skillTag}</span>
-  `;
-  document.getElementById('already-evidence').textContent = q.evidence;
-  document.getElementById('already-tip').textContent = q.tip;
+function renderDailyCount(count) {
+  if (!count || count <= 0) {
+    dailyCountEl.classList.add('hidden');
+    return;
+  }
+  dailyCountEl.classList.remove('hidden');
+  dailyCountNum.textContent = count;
 }
 
 // =====================================================================
@@ -279,8 +270,11 @@ function handleSelect(index) {
   evidenceText.textContent = data.evidence;
   tipText.textContent = data.tip;
 
-  // localStorage に保存 & streak 更新
+  // localStorage に保存 & stats 更新
   saveAnswer(data.id, isCorrect);
+
+  // 次へボタンを表示
+  nextBtn.classList.remove('hidden');
 
   // スムーズスクロール
   setTimeout(() => {
@@ -295,14 +289,34 @@ function saveAnswer(questionId, isCorrect) {
   const today = getAppDate();
   const appData = loadData();
 
-  appData.dailyLog[today] = { done: true, questionId, isCorrect };
+  const log = appData.dailyLog[today] || { done: false, questionId: null, isCorrect: null, count: 0 };
 
-  const newStreak = calcNewStreak(appData, today);
-  appData.streak = newStreak;
-  appData.lastAnsweredDate = today;
+  // 当日の初回回答時のみ streak を更新
+  if (!log.done) {
+    log.done = true;
+    log.questionId = questionId;
+    log.isCorrect = isCorrect;
+
+    const newStreak = calcNewStreak(appData, today);
+    appData.streak = newStreak;
+    appData.lastAnsweredDate = today;
+    renderStreak(newStreak);
+  }
+
+  log.count = (log.count || 0) + 1;
+  appData.dailyLog[today] = log;
 
   saveData(appData);
-  renderStreak(newStreak);
+  renderDailyCount(log.count);
+}
+
+// =====================================================================
+// 次の問題へ
+// =====================================================================
+function handleNext() {
+  state.currentIndex = (state.currentIndex + 1) % quizData.length;
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // =====================================================================
@@ -369,18 +383,18 @@ function updateNotificationButton(enabled) {
 function init() {
   const today = getAppDate();
   const appData = loadData();
+  const todayIndex = getTodayQuestionIndex();
+  const todayCount = appData.dailyLog[today]?.count || 0;
 
-  state.currentIndex = getTodayQuestionIndex();
+  // 当日すでに解いた問題数だけ先に進める（続きから再開）
+  state.currentIndex = (todayIndex + todayCount) % quizData.length;
 
   renderStreak(appData.streak);
+  renderDailyCount(todayCount);
   updateNotificationButton(appData.notificationsEnabled !== false);
 
-  if (appData.dailyLog[today]?.done) {
-    renderAlreadyAnswered(appData.dailyLog[today]);
-    return;
-  }
-
   renderQuestion();
+  nextBtn.addEventListener('click', handleNext);
   initNotifications();
 }
 

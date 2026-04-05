@@ -14,9 +14,14 @@
 
         <header class="app-header">
             <h1 class="app-title">よむ、2分。</h1>
-            <p class="app-subtitle">1日1問、読解力を鍛える</p>
-            <div class="streak-badge" id="streak-badge">
-                <span id="streak-count">0</span> 日連続
+            <p class="app-subtitle">読解力を鍛える</p>
+            <div class="stats-row">
+                <div class="stat-badge hidden" id="streak-badge">
+                    <span id="streak-count">0</span> 日連続
+                </div>
+                <div class="stat-badge stat-badge--count hidden" id="daily-count">
+                    今日 <span id="daily-count-num">0</span> 問
+                </div>
             </div>
         </header>
 
@@ -49,25 +54,6 @@
             </div>
         </div>
 
-        <!-- 当日回答済みカード -->
-        <div class="glass hidden" id="already-answered-card">
-            <p class="already-title">今日はもう解きました。</p>
-            <p class="already-sub">また明日。</p>
-
-            <div class="explanation-area" id="already-explanation">
-                <div class="already-tags" id="already-tags"></div>
-
-                <div class="explanation-block">
-                    <p class="label">【 根拠引用 】</p>
-                    <p class="content-text" id="already-evidence"></p>
-                </div>
-
-                <div class="explanation-block">
-                    <p class="label">【 読み方のコツ 】</p>
-                    <p class="content-text" id="already-tip"></p>
-                </div>
-            </div>
-        </div>
 
         <footer class="app-footer">
             <button id="notification-toggle" class="notification-toggle" onclick="toggleNotification()">

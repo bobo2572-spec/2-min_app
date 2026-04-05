@@ -446,8 +446,8 @@ function init() {
 
   renderQuestion();
   nextBtn.addEventListener('click', handleNext);
-  document.getElementById('notification-toggle').addEventListener('click', toggleNotification);
-  document.getElementById('test-notification-btn').addEventListener('click', sendTestNotification);
+  document.getElementById('notification-toggle')?.addEventListener('click', toggleNotification);
+  document.getElementById('test-notification-btn')?.addEventListener('click', sendTestNotification);
   initNotifications();
 }
 

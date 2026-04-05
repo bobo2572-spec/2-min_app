@@ -322,9 +322,13 @@ function handleNext() {
 // =====================================================================
 // 通知機能
 // =====================================================================
+function notificationSupported() {
+  return ('serviceWorker' in navigator) && ('Notification' in window);
+}
+
 async function initNotifications() {
-  if (!('serviceWorker' in navigator) || !('Notification' in window)) {
-    updateNotificationButton(false);
+  if (!notificationSupported()) {
+    updateNotificationButton(null); // 非対応表示
     return;
   }
 
@@ -350,10 +354,12 @@ async function initNotifications() {
 }
 
 async function toggleNotification() {
+  if (!notificationSupported()) return; // 非対応環境では何もしない
+
   const appData = loadData();
   const newState = !(appData.notificationsEnabled !== false);
   appData.notificationsEnabled = newState;
-  updateNotificationButton(newState); // saveData より先に UI 更新
+  updateNotificationButton(newState);
   saveData(appData);
 
   const sw = await navigator.serviceWorker.ready.catch(() => null);
@@ -369,18 +375,27 @@ async function toggleNotification() {
   }
 }
 
+// enabled: true → ON, false → OFF, null → 非対応
 function updateNotificationButton(enabled) {
   const btn = document.getElementById('notification-toggle');
   if (!btn) return;
+  if (enabled === null) {
+    btn.textContent = '通知 非対応';
+    btn.classList.add('off');
+    btn.style.opacity = '0.45';
+    return;
+  }
   btn.textContent = enabled ? '通知 ON' : '通知 OFF';
   btn.classList.toggle('off', !enabled);
+  btn.style.opacity = '';
 }
 
 // テスト通知をすぐに送信
 async function sendTestNotification() {
   const testBtn = document.getElementById('test-notification-btn');
-  if (!('Notification' in window)) {
-    alert('このブラウザは通知をサポートしていません。');
+  if (!notificationSupported()) {
+    testBtn.textContent = 'iOSはSafari PWAのみ対応';
+    setTimeout(() => { testBtn.textContent = '🔔 今すぐテスト送信'; }, 4000);
     return;
   }
 

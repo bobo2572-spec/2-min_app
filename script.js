@@ -402,6 +402,13 @@ async function sendTestNotification() {
   testBtn.disabled = true;
   testBtn.textContent = '⏳ 送信中...';
 
+  // 5秒タイムアウト — 何があっても必ずボタンをリセット
+  const resetBtn = () => {
+    testBtn.textContent = '🔔 今すぐテスト送信';
+    testBtn.disabled = false;
+  };
+  const timer = setTimeout(resetBtn, 5000);
+
   try {
     let perm = Notification.permission;
     if (perm === 'default') {
@@ -409,37 +416,44 @@ async function sendTestNotification() {
     }
 
     if (perm === 'granted') {
-      // Service Worker 経由ならSW、なければ直接 Notification
-      const swReg = await navigator.serviceWorker.getRegistration().catch(() => null);
-      if (swReg) {
-        await swReg.showNotification('よむ、2分。', {
-          body: '通知テスト成功！毎朝7時にこの通知が届きます。',
-          tag: 'test-notification',
-          icon: '/icon-192.png'
-        });
-      } else {
+      // Service Worker 経由を試み、失敗したら直接 Notification
+      let sent = false;
+      try {
+        const swReg = await Promise.race([
+          navigator.serviceWorker.getRegistration(),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('SW timeout')), 2000))
+        ]);
+        if (swReg) {
+          // icon なしで送信（404エラーによるハング回避）
+          await Promise.race([
+            swReg.showNotification('よむ、2分。', {
+              body: '通知テスト成功！毎朝7時にこの通知が届きます。',
+              tag: 'test-notification'
+            }),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('show timeout')), 2000))
+          ]);
+          sent = true;
+        }
+      } catch {
+        // SW経由が失敗 → 直接 Notification にフォールバック
+      }
+      if (!sent) {
         new Notification('よむ、2分。', {
           body: '通知テスト成功！毎朝7時にこの通知が届きます。'
         });
       }
+      clearTimeout(timer);
       testBtn.textContent = '✅ 送信しました！';
-      setTimeout(() => {
-        testBtn.textContent = '🔔 今すぐテスト送信';
-        testBtn.disabled = false;
-      }, 3000);
+      setTimeout(resetBtn, 3000);
     } else {
+      clearTimeout(timer);
       testBtn.textContent = '❌ 通知が許可されていません';
-      setTimeout(() => {
-        testBtn.textContent = '🔔 今すぐテスト送信';
-        testBtn.disabled = false;
-      }, 3000);
+      setTimeout(resetBtn, 3000);
     }
   } catch (e) {
+    clearTimeout(timer);
     testBtn.textContent = '⚠️ エラーが発生しました';
-    setTimeout(() => {
-      testBtn.textContent = '🔔 今すぐテスト送信';
-      testBtn.disabled = false;
-    }, 3000);
+    setTimeout(resetBtn, 3000);
   }
 }
 

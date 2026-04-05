@@ -57,6 +57,26 @@ body {
     color: var(--text-secondary);
     font-size: 0.875rem;
     font-weight: 300;
+    margin-bottom: 0.75rem;
+}
+
+/* Streak Badge */
+.streak-badge {
+    display: inline-block;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: var(--accent-color);
+    padding: 0.35rem 1rem;
+    border-radius: 9999px;
+    font-family: var(--font-outfit);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-top: 0.5rem;
+}
+
+#streak-count {
+    font-size: 1.1rem;
 }
 
 /* Quiz Card (Glassmorphism) */
@@ -117,6 +137,9 @@ body {
     text-align: left;
     display: flex;
     align-items: center;
+    color: var(--text-primary);
+    font-family: var(--font-jp);
+    font-size: 1rem;
 }
 
 .choice-item:hover {
@@ -205,9 +228,73 @@ body {
     background: var(--accent-hover);
 }
 
+/* Already Answered Card */
+.already-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.already-sub {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.already-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+#already-answered-card .explanation-area {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+/* Footer */
 .app-footer {
     text-align: center;
     margin-top: 2rem;
     color: var(--text-secondary);
     font-size: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Notification Toggle Button */
+.notification-toggle {
+    background: transparent;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: var(--accent-color);
+    padding: 0.4rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-jp);
+}
+
+.notification-toggle:hover {
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.notification-toggle.off {
+    border-color: rgba(148, 163, 184, 0.3);
+    color: var(--text-secondary);
+}
+
+.notification-toggle.off:hover {
+    background: rgba(148, 163, 184, 0.08);
+}
+
+.notification-toggle:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }

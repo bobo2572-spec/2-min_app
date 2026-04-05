@@ -1,4 +1,6 @@
+// =====================================================================
 // クイズデータ
+// =====================================================================
 const quizData = [
   {
     "id": "q001",
@@ -54,7 +56,7 @@ const quizData = [
     ],
     "answerIndex": 0,
     "evidence": "「上限以内は実費が支給されます。交通費は……実費が全額支給されますが、タクシー利用時は……領収書の提出が必須です。」",
-    "tip": "複合的な条件（金額のルール ＋ 必要書類のルール）を分けて整理する。宿泊費（8,500円）＋タクシー代（1,200円）＝9,700円。"
+    "tip": "複合的な条件（金額のルール＋必要書類のルール）を分けて整理する。宿泊費（8,500円）＋タクシー代（1,200円）＝9,700円。"
   },
   {
     "id": "q005",
@@ -103,105 +105,279 @@ const quizData = [
   }
 ];
 
+// =====================================================================
+// localStorage
+// =====================================================================
+const STORAGE_KEY = 'yomu2min';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { dailyLog: {}, streak: 0, lastAnsweredDate: null, notificationsEnabled: true };
+    return JSON.parse(raw);
+  } catch {
+    return { dailyLog: {}, streak: 0, lastAnsweredDate: null, notificationsEnabled: true };
+  }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// =====================================================================
+// 日付ユーティリティ（Asia/Tokyo 04:00 区切り）
+// =====================================================================
+
+// アプリの「今日」: JST 04:00 をゼロ時として扱う
+// 04:00 JST = UTC+9 - 4h = UTC+5 → Date.now() に +5h して ISO 日付を取得
+function getAppDate() {
+  const shifted = new Date(Date.now() + 5 * 60 * 60 * 1000);
+  return shifted.toISOString().split('T')[0]; // "YYYY-MM-DD"
+}
+
+// 決定論的な今日の問題インデックス（全ユーザー共通）
+function getTodayQuestionIndex() {
+  const epoch = new Date('2026-04-01T00:00:00Z');
+  const today = new Date(getAppDate() + 'T00:00:00Z');
+  const days = Math.floor((today - epoch) / 86400000);
+  return ((days % quizData.length) + quizData.length) % quizData.length;
+}
+
+// アプリ日付文字列から「1日前」の日付文字列を返す
+function getPrevAppDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
+// =====================================================================
+// streak 計算
+// =====================================================================
+function calcNewStreak(data, today) {
+  const last = data.lastAnsweredDate;
+  if (!last) return 1;
+  if (last === today) return data.streak; // 既に今日カウント済み
+  if (last === getPrevAppDate(today)) return data.streak + 1; // 連続
+  return 1; // リセット
+}
+
+// =====================================================================
 // アプリの状態
+// =====================================================================
 let state = {
-    currentIndex: 0,
-    isAnswered: false
+  currentIndex: 0,
+  isAnswered: false
 };
 
-// DOM要素の取得
-const tagsEl = document.getElementById('tags');
-const passageEl = document.getElementById('passage');
-const questionEl = document.getElementById('question');
-const choicesEl = document.getElementById('choices');
+// =====================================================================
+// DOM 参照
+// =====================================================================
+const tagsEl          = document.getElementById('tags');
+const passageEl       = document.getElementById('passage');
+const questionEl      = document.getElementById('question');
+const choicesEl       = document.getElementById('choices');
 const explanationArea = document.getElementById('explanation-area');
-const resultBadge = document.getElementById('result-badge');
-const evidenceText = document.getElementById('evidence-text');
-const tipText = document.getElementById('tip-text');
-const nextBtn = document.getElementById('next-btn');
+const resultBadge     = document.getElementById('result-badge');
+const evidenceText    = document.getElementById('evidence-text');
+const tipText         = document.getElementById('tip-text');
+const nextBtn         = document.getElementById('next-btn');
+const quizCard        = document.getElementById('quiz-card');
+const alreadyCard     = document.getElementById('already-answered-card');
+const streakBadge     = document.getElementById('streak-badge');
+const streakCount     = document.getElementById('streak-count');
 
-// 初期表示
-function init() {
-    renderQuestion();
-    nextBtn.addEventListener('click', handleNext);
+// =====================================================================
+// streak 表示
+// =====================================================================
+function renderStreak(streak) {
+  if (!streak || streak <= 0) {
+    streakBadge.classList.add('hidden');
+    return;
+  }
+  streakBadge.classList.remove('hidden');
+  streakCount.textContent = streak;
 }
 
+// =====================================================================
+// 当日回答済み表示
+// =====================================================================
+function renderAlreadyAnswered(logEntry) {
+  quizCard.classList.add('hidden');
+  alreadyCard.classList.remove('hidden');
+
+  const q = quizData.find(d => d.id === logEntry.questionId);
+  if (!q) return;
+
+  document.getElementById('already-tags').innerHTML = `
+    <span class="tag">${q.genre}</span>
+    <span class="tag">${q.skillTag}</span>
+  `;
+  document.getElementById('already-evidence').textContent = q.evidence;
+  document.getElementById('already-tip').textContent = q.tip;
+}
+
+// =====================================================================
 // 問題の描画
+// =====================================================================
 function renderQuestion() {
-    const data = quizData[state.currentIndex];
+  const data = quizData[state.currentIndex];
 
-    // 状態リセット
-    state.isAnswered = false;
-    explanationArea.classList.add('hidden');
+  state.isAnswered = false;
+  explanationArea.classList.add('hidden');
+  nextBtn.classList.add('hidden');
 
-    // タグ
-    tagsEl.innerHTML = `
-        <span class="tag">${data.genre}</span>
-        <span class="tag">${data.skillTag}</span>
+  tagsEl.innerHTML = `
+    <span class="tag">${data.genre}</span>
+    <span class="tag">${data.skillTag}</span>
+  `;
+
+  passageEl.textContent = data.passage;
+  questionEl.textContent = data.question;
+
+  choicesEl.innerHTML = '';
+  data.choices.forEach((choice, index) => {
+    const button = document.createElement('button');
+    button.className = 'choice-item';
+    button.innerHTML = `
+      <span class="choice-label">${String.fromCharCode(65 + index)}</span>
+      <span class="choice-text">${choice}</span>
     `;
-
-    // 本文と設問
-    passageEl.textContent = data.passage;
-    questionEl.textContent = data.question;
-
-    // 選択肢
-    choicesEl.innerHTML = '';
-    data.choices.forEach((choice, index) => {
-        const button = document.createElement('button');
-        button.className = 'choice-item';
-        button.innerHTML = `
-            <span class="choice-label">${String.fromCharCode(65 + index)}</span>
-            <span class="choice-text">${choice}</span>
-        `;
-        button.addEventListener('click', () => handleSelect(index));
-        choicesEl.appendChild(button);
-    });
+    button.addEventListener('click', () => handleSelect(index));
+    choicesEl.appendChild(button);
+  });
 }
 
-// 選択肢クリック時の処理
+// =====================================================================
+// 選択肢クリック
+// =====================================================================
 function handleSelect(index) {
-    if (state.isAnswered) return;
+  if (state.isAnswered) return;
 
-    state.isAnswered = true;
-    const data = quizData[state.currentIndex];
-    const isCorrect = index === data.answerIndex;
+  state.isAnswered = true;
+  const data = quizData[state.currentIndex];
+  const isCorrect = index === data.answerIndex;
 
-    // 選択肢の見た目更新
-    const choiceButtons = choicesEl.querySelectorAll('.choice-item');
-    choiceButtons[index].classList.add('selected');
+  // 選択肢の見た目更新
+  const choiceButtons = choicesEl.querySelectorAll('.choice-item');
+  choiceButtons[index].classList.add('selected');
 
-    // 解説エリアの表示
-    explanationArea.classList.remove('hidden');
+  // 解説表示
+  explanationArea.classList.remove('hidden');
 
-    if (isCorrect) {
-        resultBadge.textContent = 'ナイス読解。';
-        resultBadge.className = 'result-badge correct';
-    } else {
-        resultBadge.textContent = '惜しい。';
-        resultBadge.className = 'result-badge incorrect';
-    }
+  if (isCorrect) {
+    resultBadge.textContent = 'ナイス読解。';
+    resultBadge.className = 'result-badge correct';
+  } else {
+    resultBadge.textContent = '惜しい。';
+    resultBadge.className = 'result-badge incorrect';
+  }
 
-    evidenceText.textContent = data.evidence;
-    tipText.textContent = data.tip;
+  evidenceText.textContent = data.evidence;
+  tipText.textContent = data.tip;
 
-    // スムーズにスクロール
-    setTimeout(() => {
-        explanationArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+  // localStorage に保存 & streak 更新
+  saveAnswer(data.id, isCorrect);
+
+  // スムーズスクロール
+  setTimeout(() => {
+    explanationArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
 }
 
-// 「次へ」ボタン
-function handleNext() {
-    state.currentIndex++;
+// =====================================================================
+// 回答を localStorage に保存
+// =====================================================================
+function saveAnswer(questionId, isCorrect) {
+  const today = getAppDate();
+  const appData = loadData();
 
-    // 最後まで行ったら最初に戻る
-    if (state.currentIndex >= quizData.length) {
-        state.currentIndex = 0;
-    }
+  appData.dailyLog[today] = { done: true, questionId, isCorrect };
 
-    renderQuestion();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const newStreak = calcNewStreak(appData, today);
+  appData.streak = newStreak;
+  appData.lastAnsweredDate = today;
+
+  saveData(appData);
+  renderStreak(newStreak);
 }
 
-// アプリ起動
+// =====================================================================
+// 通知機能
+// =====================================================================
+async function initNotifications() {
+  if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+    updateNotificationButton(false);
+    document.getElementById('notification-toggle').disabled = true;
+    return;
+  }
+
+  const appData = loadData();
+  updateNotificationButton(appData.notificationsEnabled !== false);
+
+  if (appData.notificationsEnabled === false) return;
+
+  try {
+    await navigator.serviceWorker.register('/2-min_app/sw.js');
+
+    if (Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+    }
+    if (Notification.permission !== 'granted') return;
+
+    const sw = await navigator.serviceWorker.ready;
+    sw.active?.postMessage({ type: 'SCHEDULE_NOTIFICATION' });
+  } catch {
+    // 通知なしで継続
+  }
+}
+
+async function toggleNotification() {
+  const appData = loadData();
+  const newState = !(appData.notificationsEnabled !== false);
+  appData.notificationsEnabled = newState;
+  saveData(appData);
+  updateNotificationButton(newState);
+
+  const sw = await navigator.serviceWorker.ready.catch(() => null);
+  if (!sw?.active) return;
+
+  if (newState) {
+    const perm = await Notification.requestPermission().catch(() => 'denied');
+    if (perm === 'granted') {
+      sw.active.postMessage({ type: 'SCHEDULE_NOTIFICATION' });
+    }
+  } else {
+    sw.active.postMessage({ type: 'CANCEL_NOTIFICATION' });
+  }
+}
+
+function updateNotificationButton(enabled) {
+  const btn = document.getElementById('notification-toggle');
+  if (!btn) return;
+  btn.textContent = enabled ? '通知 ON' : '通知 OFF';
+  btn.classList.toggle('off', !enabled);
+}
+
+// =====================================================================
+// 初期化
+// =====================================================================
+function init() {
+  const today = getAppDate();
+  const appData = loadData();
+
+  state.currentIndex = getTodayQuestionIndex();
+
+  renderStreak(appData.streak);
+  updateNotificationButton(appData.notificationsEnabled !== false);
+
+  if (appData.dailyLog[today]?.done) {
+    renderAlreadyAnswered(appData.dailyLog[today]);
+    return;
+  }
+
+  renderQuestion();
+  initNotifications();
+}
+
 init();

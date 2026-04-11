@@ -605,13 +605,38 @@ function handleAdminSubmit(e) {
   setTimeout(() => { btn.textContent = '問題を追加'; }, 2000);
 }
 
-function initAdminPanel() {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has('admin')) return;
-
-  document.getElementById('admin-panel').classList.remove('hidden');
+function showAdminPanel() {
+  const panel = document.getElementById('admin-panel');
+  if (!panel.classList.contains('hidden')) return; // 既に表示済み
+  panel.classList.remove('hidden');
   renderAdminList();
   document.getElementById('admin-form').addEventListener('submit', handleAdminSubmit);
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function initAdminPanel() {
+  // URL に "admin" が含まれていれば表示（?admin / ?admin=1 / #admin すべて対応）
+  if (window.location.href.includes('admin')) {
+    showAdminPanel();
+  }
+
+  // フッターの著作権テキストを5回タップしても開く（スマホ用）
+  let tapCount = 0;
+  let tapTimer = null;
+  const footer = document.querySelector('.app-footer p');
+  if (footer) {
+    footer.style.cursor = 'pointer';
+    footer.addEventListener('click', () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+      if (tapCount >= 5) {
+        tapCount = 0;
+        showAdminPanel();
+      } else {
+        tapTimer = setTimeout(() => { tapCount = 0; }, 2000);
+      }
+    });
+  }
 }
 
 // =====================================================================

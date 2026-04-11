@@ -1,11 +1,12 @@
 // =====================================================================
 // クイズデータ（組み込み）
-// 新スキーマ: elementNo / title / sequenceNo / passage / question /
-//             choices / answers（配列・複数可） / explanation
+// スキーマ: elementName / elementNo / title / sequenceNo / passage /
+//           question / choices / answers（配列・複数可） / explanation
 // =====================================================================
 const builtinQuizData = [
   {
     id: "q001",
+    elementName: "文章読解",
     elementNo: 1,
     title: "キャンセル規定",
     sequenceNo: 1,
@@ -17,6 +18,7 @@ const builtinQuizData = [
   },
   {
     id: "q002",
+    elementName: "文章読解",
     elementNo: 1,
     title: "SNSと思考",
     sequenceNo: 2,
@@ -32,6 +34,7 @@ const builtinQuizData = [
   },
   {
     id: "q003",
+    elementName: "文章読解",
     elementNo: 1,
     title: "ミツバチのダンス",
     sequenceNo: 3,
@@ -47,6 +50,7 @@ const builtinQuizData = [
   },
   {
     id: "q004",
+    elementName: "文章読解",
     elementNo: 1,
     title: "旅費精算",
     sequenceNo: 4,
@@ -62,6 +66,7 @@ const builtinQuizData = [
   },
   {
     id: "q005",
+    elementName: "文章読解",
     elementNo: 1,
     title: "AIと人間",
     sequenceNo: 5,
@@ -77,6 +82,7 @@ const builtinQuizData = [
   },
   {
     id: "q006",
+    elementName: "文章読解",
     elementNo: 1,
     title: "読書の転機",
     sequenceNo: 6,
@@ -92,6 +98,7 @@ const builtinQuizData = [
   },
   {
     id: "q007",
+    elementName: "文章読解",
     elementNo: 1,
     title: "記憶と接続語",
     sequenceNo: 7,
@@ -231,7 +238,8 @@ function renderQuestion() {
   confirmBtn.classList.add('hidden');
 
   tagsEl.innerHTML = `
-    <span class="tag">要素${data.elementNo}-${data.sequenceNo}</span>
+    <span class="tag">${data.elementName}</span>
+    <span class="tag">No.${data.elementNo}-${data.sequenceNo}</span>
     <span class="tag">${data.title}</span>
     ${isMulti ? '<span class="tag tag--multi">複数選択</span>' : ''}
   `;
@@ -595,12 +603,13 @@ function renderQuestionList() {
     return `<tr>
       ${numCell}
       <td class="ql-title" data-index="${i}">${q.title}</td>
+      <td class="ql-genre">${q.elementName}</td>
     </tr>`;
   }).join('');
 
   listEl.innerHTML = `
     <table class="question-table">
-      <thead><tr><th>要素-追番</th><th>タイトル</th></tr></thead>
+      <thead><tr><th>No.</th><th>タイトル</th><th>要素名</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   `;
@@ -657,7 +666,8 @@ function renderAdminList() {
     customs.map((q, i) => `
       <div class="admin-item">
         <div class="admin-item-header">
-          <span class="tag">要素${q.elementNo}-${q.sequenceNo}</span>
+          <span class="tag">${q.elementName}</span>
+          <span class="tag">No.${q.elementNo}-${q.sequenceNo}</span>
           <span class="tag">${q.title}</span>
           <button class="admin-delete-btn" data-index="${i}">削除</button>
         </div>
@@ -692,6 +702,7 @@ function handleAdminSubmit(e) {
 
   const newQ = {
     id: 'custom_' + Date.now(),
+    elementName: document.getElementById('admin-element-name').value.trim(),
     elementNo: parseInt(document.getElementById('admin-element-no').value, 10) || 1,
     title: document.getElementById('admin-title').value.trim(),
     sequenceNo: parseInt(document.getElementById('admin-sequence-no').value, 10) || 1,

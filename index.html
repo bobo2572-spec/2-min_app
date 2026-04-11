@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="よむ2分">
     <link rel="apple-touch-icon" href="/2-min_app/icon-192.png">
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
     <div id="app">
@@ -68,18 +68,22 @@
             <h2 class="admin-title">管理者パネル</h2>
 
             <form id="admin-form" class="admin-form">
+                <div class="admin-row">
+                    <label for="admin-element-name">要素名</label>
+                    <input type="text" id="admin-element-name" placeholder="例: 文章読解" required>
+                </div>
                 <div class="admin-row admin-row--inline">
                     <div>
                         <label for="admin-element-no">要素No.</label>
                         <input type="number" id="admin-element-no" min="1" value="1" required>
                     </div>
-                    <div>
-                        <label for="admin-sequence-no">追番</label>
-                        <input type="number" id="admin-sequence-no" min="1" value="1" required>
-                    </div>
                     <div style="flex:2">
                         <label for="admin-title">タイトル</label>
                         <input type="text" id="admin-title" placeholder="例: 旅費精算" required>
+                    </div>
+                    <div>
+                        <label for="admin-sequence-no">追番</label>
+                        <input type="number" id="admin-sequence-no" min="1" value="1" required>
                     </div>
                 </div>
                 <div class="admin-row">
@@ -132,6 +136,6 @@
 
     </div>
 
-    <script src="script.js?v=12"></script>
+    <script src="script.js?v=13"></script>
 </body>
 </html>

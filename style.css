@@ -168,6 +168,41 @@ body {
     background: rgba(56, 189, 248, 0.1);
 }
 
+.choice-item.correct-answer {
+    border-color: var(--correct-color);
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.choice-item.wrong-answer {
+    border-color: var(--incorrect-color);
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.tag--multi {
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+}
+
+/* 答えを確認ボタン */
+.confirm-btn {
+    width: 100%;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    color: var(--accent-color);
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: var(--font-jp);
+    margin-top: 1rem;
+}
+
+.confirm-btn:hover {
+    background: rgba(56, 189, 248, 0.22);
+}
+
 .choice-label {
     font-family: var(--font-outfit);
     margin-right: 1rem;
@@ -478,6 +513,45 @@ body {
 
 .admin-row select option {
     background: #1e293b;
+}
+
+.admin-row--inline {
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.admin-row--inline > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+}
+
+.admin-row--inline input[type="number"] {
+    width: 100%;
+}
+
+.admin-check-group {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+}
+
+.admin-check {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.admin-check input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: #f87171;
+    cursor: pointer;
 }
 
 .admin-submit-btn {

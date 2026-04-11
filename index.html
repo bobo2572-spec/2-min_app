@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="よむ2分">
     <link rel="apple-touch-icon" href="/2-min_app/icon-192.png">
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
     <div id="app">
@@ -48,17 +48,14 @@
 
             <div class="choices-container" id="choices"></div>
 
+            <button class="confirm-btn hidden" id="confirm-btn">答えを確認</button>
+
             <div class="explanation-area hidden" id="explanation-area">
                 <span class="result-badge" id="result-badge"></span>
 
                 <div class="explanation-block">
-                    <p class="label">【 根拠引用 】</p>
-                    <p class="content-text" id="evidence-text"></p>
-                </div>
-
-                <div class="explanation-block">
-                    <p class="label">【 読み方のコツ 】</p>
-                    <p class="content-text" id="tip-text"></p>
+                    <p class="label">【 解説 】</p>
+                    <p class="content-text" id="explanation-text"></p>
                 </div>
 
                 <button class="next-btn hidden" id="next-btn">次の問題へ</button>
@@ -71,24 +68,26 @@
             <h2 class="admin-title">管理者パネル</h2>
 
             <form id="admin-form" class="admin-form">
-                <div class="admin-row">
-                    <label for="admin-title">タイトル（短い単語）</label>
-                    <input type="text" id="admin-title" placeholder="例: 旅費精算" required>
+                <div class="admin-row admin-row--inline">
+                    <div>
+                        <label for="admin-element-no">要素No.</label>
+                        <input type="number" id="admin-element-no" min="1" value="1" required>
+                    </div>
+                    <div>
+                        <label for="admin-sequence-no">追番</label>
+                        <input type="number" id="admin-sequence-no" min="1" value="1" required>
+                    </div>
+                    <div style="flex:2">
+                        <label for="admin-title">タイトル</label>
+                        <input type="text" id="admin-title" placeholder="例: 旅費精算" required>
+                    </div>
                 </div>
                 <div class="admin-row">
-                    <label for="admin-genre">ジャンル</label>
-                    <input type="text" id="admin-genre" placeholder="例: 論説文" required>
-                </div>
-                <div class="admin-row">
-                    <label for="admin-skill">スキルタグ</label>
-                    <input type="text" id="admin-skill" placeholder="例: 筆者の主張" required>
-                </div>
-                <div class="admin-row">
-                    <label for="admin-passage">問題文（本文）</label>
+                    <label for="admin-passage">本文</label>
                     <textarea id="admin-passage" rows="6" required></textarea>
                 </div>
                 <div class="admin-row">
-                    <label for="admin-question">設問</label>
+                    <label for="admin-question">問い</label>
                     <textarea id="admin-question" rows="2" required></textarea>
                 </div>
                 <div class="admin-row">
@@ -104,20 +103,16 @@
                     <input type="text" id="admin-choice-c" required>
                 </div>
                 <div class="admin-row">
-                    <label for="admin-answer">正解</label>
-                    <select id="admin-answer" required>
-                        <option value="0">A</option>
-                        <option value="1">B</option>
-                        <option value="2">C</option>
-                    </select>
+                    <label>答え（複数選択可）</label>
+                    <div class="admin-check-group">
+                        <label class="admin-check"><input type="checkbox" id="admin-ans-a"> A</label>
+                        <label class="admin-check"><input type="checkbox" id="admin-ans-b"> B</label>
+                        <label class="admin-check"><input type="checkbox" id="admin-ans-c"> C</label>
+                    </div>
                 </div>
                 <div class="admin-row">
-                    <label for="admin-evidence">根拠引用（答えを支える本文の一節）</label>
-                    <textarea id="admin-evidence" rows="2" required></textarea>
-                </div>
-                <div class="admin-row">
-                    <label for="admin-tip">読み方のコツ</label>
-                    <textarea id="admin-tip" rows="2" required></textarea>
+                    <label for="admin-explanation">解説</label>
+                    <textarea id="admin-explanation" rows="4" required></textarea>
                 </div>
                 <button type="submit" class="admin-submit-btn">問題を追加</button>
             </form>
@@ -137,6 +132,6 @@
 
     </div>
 
-    <script src="script.js?v=11"></script>
+    <script src="script.js?v=12"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 // =====================================================================
-// クイズデータ
+// クイズデータ（組み込み）
 // =====================================================================
-const quizData = [
+const builtinQuizData = [
   {
     "id": "q001",
     "genre": "申込書・規約",
@@ -104,6 +104,9 @@ const quizData = [
     "tip": "「それにもかかわらず」は逆接の接続語。前の内容から予想される結果と、実際の結果が逆になっていることを確認する。"
   }
 ];
+
+// 実行時に使うクイズデータ（カスタム問題 + 組み込み）
+let quizData = [...builtinQuizData];
 
 // =====================================================================
 // localStorage
@@ -512,9 +515,112 @@ async function sendTestNotification() {
 }
 
 // =====================================================================
+// 管理者機能
+// =====================================================================
+const CUSTOM_KEY = 'yomu2min_custom';
+
+function loadCustomQuestions() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCustomQuestions(arr) {
+  try {
+    localStorage.setItem(CUSTOM_KEY, JSON.stringify(arr));
+  } catch {}
+}
+
+function rebuildQuizData() {
+  const customs = loadCustomQuestions();
+  quizData = [...customs, ...builtinQuizData];
+}
+
+function renderAdminList() {
+  const list = document.getElementById('admin-list');
+  const customs = loadCustomQuestions();
+
+  if (customs.length === 0) {
+    list.innerHTML = '<p class="admin-empty">追加した問題はまだありません。</p>';
+    return;
+  }
+
+  list.innerHTML =
+    `<p class="admin-list-title">追加済み問題 （${customs.length}件）</p>` +
+    customs.map((q, i) => `
+      <div class="admin-item">
+        <div class="admin-item-header">
+          <span class="tag">${q.genre}</span>
+          <span class="tag">${q.skillTag}</span>
+          <button class="admin-delete-btn" data-index="${i}">削除</button>
+        </div>
+        <p class="admin-item-passage">${q.passage.slice(0, 70)}…</p>
+        <p class="admin-item-question">${q.question}</p>
+      </div>
+    `).join('');
+
+  list.querySelectorAll('.admin-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.index, 10);
+      const arr = loadCustomQuestions();
+      arr.splice(idx, 1);
+      saveCustomQuestions(arr);
+      rebuildQuizData();
+      renderAdminList();
+    });
+  });
+}
+
+function handleAdminSubmit(e) {
+  e.preventDefault();
+
+  const newQ = {
+    id: 'custom_' + Date.now(),
+    genre: document.getElementById('admin-genre').value.trim(),
+    skillTag: document.getElementById('admin-skill').value.trim(),
+    passage: document.getElementById('admin-passage').value.trim(),
+    question: document.getElementById('admin-question').value.trim(),
+    choices: [
+      document.getElementById('admin-choice-a').value.trim(),
+      document.getElementById('admin-choice-b').value.trim(),
+      document.getElementById('admin-choice-c').value.trim(),
+    ],
+    answerIndex: parseInt(document.getElementById('admin-answer').value, 10),
+    evidence: document.getElementById('admin-evidence').value.trim(),
+    tip: document.getElementById('admin-tip').value.trim(),
+  };
+
+  const arr = loadCustomQuestions();
+  arr.push(newQ);
+  saveCustomQuestions(arr);
+  rebuildQuizData();
+  renderAdminList();
+  e.target.reset();
+
+  const btn = document.querySelector('.admin-submit-btn');
+  btn.textContent = '✅ 追加しました！';
+  setTimeout(() => { btn.textContent = '問題を追加'; }, 2000);
+}
+
+function initAdminPanel() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('admin')) return;
+
+  document.getElementById('admin-panel').classList.remove('hidden');
+  renderAdminList();
+  document.getElementById('admin-form').addEventListener('submit', handleAdminSubmit);
+}
+
+// =====================================================================
 // 初期化
 // =====================================================================
 function init() {
+  rebuildQuizData(); // カスタム問題をマージ
+  initAdminPanel();
+
   const today = getAppDate();
   const appData = loadData();
   const todayIndex = getTodayQuestionIndex();

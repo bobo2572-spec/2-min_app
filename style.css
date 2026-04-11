@@ -320,3 +320,152 @@ body {
     cursor: not-allowed;
     transform: none;
 }
+
+/* =====================================================================
+   Admin Panel
+   ===================================================================== */
+.admin-panel {
+    margin-top: 2rem;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    border-radius: 24px;
+    padding: 2rem;
+}
+
+.admin-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f87171;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.admin-row label {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.admin-row input,
+.admin-row textarea,
+.admin-row select {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    color: var(--text-primary);
+    font-family: var(--font-jp);
+    font-size: 0.95rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.admin-row input:focus,
+.admin-row textarea:focus,
+.admin-row select:focus {
+    outline: none;
+    border-color: rgba(248, 113, 113, 0.5);
+}
+
+.admin-row select option {
+    background: #1e293b;
+}
+
+.admin-submit-btn {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid rgba(248, 113, 113, 0.5);
+    color: #f87171;
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-jp);
+    margin-top: 0.5rem;
+}
+
+.admin-submit-btn:hover {
+    background: rgba(248, 113, 113, 0.22);
+}
+
+.admin-list {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-list-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.admin-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.admin-delete-btn {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    color: #f87171;
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: var(--font-jp);
+    transition: background 0.15s;
+}
+
+.admin-delete-btn:hover {
+    background: rgba(248, 113, 113, 0.15);
+}
+
+.admin-item-passage {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.3rem;
+    line-height: 1.5;
+}
+
+.admin-item-question {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.admin-empty {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1rem 0;
+}

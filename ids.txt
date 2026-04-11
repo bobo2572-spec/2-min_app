@@ -1,0 +1,7 @@
+﻿14 :     id: "q001", :     elementName: "基本読解",
+30 :     id: "q002", :     elementName: "基本読解",
+45 :     id: "q007", :     elementName: "文章読解",
+61 :     id: "q008", :     elementName: "基本読解",
+77 :     id: "q009", :     elementName: "基本読解",
+323 :   const log = appData.dailyLog[today] || { done: false, questionId: null, isCorrect: null, count: 0 }; : 
+725 :     id: editingId || ('custom_' + Date.now()), :     elementName: document.getElementById('admin-element-name').value.trim(),

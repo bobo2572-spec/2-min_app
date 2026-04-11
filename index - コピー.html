@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>よむ、2分。— 1時間MVP</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <h1 class="app-title">よむ、2分。</h1>
+            <p class="app-subtitle">1分で読み、1分で解く。</p>
+        </header>
+
+        <main id="main-content">
+            <article id="quiz-card" class="quiz-card glass">
+                <!-- Genre and Skill Tags -->
+                <div class="tags-container" id="tags">
+                    <!-- JS will insert tags here -->
+                </div>
+
+                <!-- Passage Section -->
+                <div class="passage-section" id="passage">
+                    <!-- JS will insert passage here -->
+                </div>
+
+                <!-- Question Section -->
+                <div class="question-section" id="question">
+                    <!-- JS will insert question here -->
+                </div>
+
+                <!-- Choices Section -->
+                <div class="choices-container" id="choices">
+                    <!-- JS will insert choices here -->
+                </div>
+
+                <!-- Explanation Area (Initially Hidden) -->
+                <div id="explanation-area" class="explanation-area hidden">
+                    <div class="result-badge" id="result-badge"></div>
+                    
+                    <div class="explanation-content">
+                        <section class="explanation-block">
+                            <h3 class="label">【 根拠引用 】</h3>
+                            <p id="evidence-text" class="content-text"></p>
+                        </section>
+                        
+                        <section class="explanation-block">
+                            <h3 class="label">【 読み方のコツ 】</h3>
+                            <p id="tip-text" class="content-text"></p>
+                        </section>
+                    </div>
+
+                    <button id="next-btn" class="next-btn">次の問題へ</button>
+                </div>
+            </article>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2026 よむ、2分。</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="よむ2分">
     <link rel="apple-touch-icon" href="/2-min_app/icon-192.png">
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
     <div id="app">
@@ -118,7 +118,10 @@
                     <label for="admin-explanation">解説</label>
                     <textarea id="admin-explanation" rows="4" required></textarea>
                 </div>
-                <button type="submit" class="admin-submit-btn">問題を追加</button>
+                <div class="admin-form-actions">
+                    <button type="submit" class="admin-submit-btn">問題を追加</button>
+                    <button type="button" class="admin-cancel-btn hidden" id="admin-cancel-btn">キャンセル</button>
+                </div>
             </form>
 
             <div id="admin-list" class="admin-list"></div>
@@ -136,6 +139,6 @@
 
     </div>
 
-    <script src="script.js?v=13"></script>
+    <script src="script.js?v=14"></script>
 </body>
 </html>

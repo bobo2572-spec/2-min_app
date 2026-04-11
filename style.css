@@ -618,6 +618,51 @@ body {
     background: rgba(248, 113, 113, 0.15);
 }
 
+.admin-edit-btn {
+    background: transparent;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: var(--accent-color);
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: var(--font-jp);
+    transition: background 0.15s;
+}
+
+.admin-edit-btn:hover {
+    background: rgba(56, 189, 248, 0.12);
+}
+
+.admin-form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.admin-form-actions .admin-submit-btn {
+    flex: 1;
+    margin-top: 0;
+}
+
+.admin-cancel-btn {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    color: var(--text-secondary);
+    padding: 0.8rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-jp);
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.admin-cancel-btn:hover {
+    background: rgba(148, 163, 184, 0.1);
+}
+
 .admin-item-passage {
     font-size: 0.82rem;
     color: var(--text-secondary);

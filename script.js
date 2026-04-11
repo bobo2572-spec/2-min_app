@@ -669,6 +669,7 @@ function renderAdminList() {
           <span class="tag">${q.elementName}</span>
           <span class="tag">No.${q.elementNo}-${q.sequenceNo}</span>
           <span class="tag">${q.title}</span>
+          <button class="admin-edit-btn" data-index="${i}">編集</button>
           <button class="admin-delete-btn" data-index="${i}">削除</button>
         </div>
         <p class="admin-item-passage">${q.passage.slice(0, 70)}…</p>
@@ -676,16 +677,58 @@ function renderAdminList() {
       </div>
     `).join('');
 
+  list.querySelectorAll('.admin-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.index, 10);
+      const arr = loadCustomQuestions();
+      const q = arr[idx];
+      editingId = q.id;
+      populateAdminForm(q);
+      document.querySelector('.admin-submit-btn').textContent = '更新する';
+      document.getElementById('admin-cancel-btn').classList.remove('hidden');
+      document.getElementById('admin-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
   list.querySelectorAll('.admin-delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = parseInt(btn.dataset.index, 10);
       const arr = loadCustomQuestions();
+      if (!confirm(`「${arr[idx].title}」を削除しますか？`)) return;
       arr.splice(idx, 1);
       saveCustomQuestions(arr);
       rebuildQuizData();
       renderAdminList();
+      renderQuestionList();
+      if (editingId) exitEditMode();
     });
   });
+}
+
+// 編集中の問題ID（null = 新規追加モード）
+let editingId = null;
+
+function populateAdminForm(q) {
+  document.getElementById('admin-element-name').value = q.elementName || '';
+  document.getElementById('admin-element-no').value  = q.elementNo   || 1;
+  document.getElementById('admin-title').value        = q.title       || '';
+  document.getElementById('admin-sequence-no').value  = q.sequenceNo  || 1;
+  document.getElementById('admin-passage').value      = q.passage     || '';
+  document.getElementById('admin-question').value     = q.question    || '';
+  document.getElementById('admin-choice-a').value     = q.choices[0]  || '';
+  document.getElementById('admin-choice-b').value     = q.choices[1]  || '';
+  document.getElementById('admin-choice-c').value     = q.choices[2]  || '';
+  document.getElementById('admin-ans-a').checked      = q.answers.includes(0);
+  document.getElementById('admin-ans-b').checked      = q.answers.includes(1);
+  document.getElementById('admin-ans-c').checked      = q.answers.includes(2);
+  document.getElementById('admin-explanation').value  = q.explanation  || '';
+}
+
+function exitEditMode() {
+  editingId = null;
+  document.getElementById('admin-form').reset();
+  document.querySelector('.admin-submit-btn').textContent = '問題を追加';
+  document.getElementById('admin-cancel-btn').classList.add('hidden');
 }
 
 function handleAdminSubmit(e) {
@@ -700,14 +743,15 @@ function handleAdminSubmit(e) {
     return;
   }
 
-  const newQ = {
-    id: 'custom_' + Date.now(),
+  const wasEditing = !!editingId;
+  const qData = {
+    id: editingId || ('custom_' + Date.now()),
     elementName: document.getElementById('admin-element-name').value.trim(),
-    elementNo: parseInt(document.getElementById('admin-element-no').value, 10) || 1,
-    title: document.getElementById('admin-title').value.trim(),
-    sequenceNo: parseInt(document.getElementById('admin-sequence-no').value, 10) || 1,
-    passage: document.getElementById('admin-passage').value.trim(),
-    question: document.getElementById('admin-question').value.trim(),
+    elementNo:   parseInt(document.getElementById('admin-element-no').value, 10)   || 1,
+    title:       document.getElementById('admin-title').value.trim(),
+    sequenceNo:  parseInt(document.getElementById('admin-sequence-no').value, 10)  || 1,
+    passage:     document.getElementById('admin-passage').value.trim(),
+    question:    document.getElementById('admin-question').value.trim(),
     choices: [
       document.getElementById('admin-choice-a').value.trim(),
       document.getElementById('admin-choice-b').value.trim(),
@@ -718,16 +762,23 @@ function handleAdminSubmit(e) {
   };
 
   const arr = loadCustomQuestions();
-  arr.push(newQ);
+  if (wasEditing) {
+    const idx = arr.findIndex(q => q.id === editingId);
+    if (idx !== -1) arr[idx] = qData; else arr.push(qData);
+    exitEditMode();
+  } else {
+    arr.push(qData);
+    e.target.reset();
+  }
+
   saveCustomQuestions(arr);
   rebuildQuizData();
   renderAdminList();
   renderQuestionList();
-  e.target.reset();
 
   const btn = document.querySelector('.admin-submit-btn');
-  btn.textContent = '✅ 追加しました！';
-  setTimeout(() => { btn.textContent = '問題を追加'; }, 2000);
+  btn.textContent = wasEditing ? '✅ 更新しました！' : '✅ 追加しました！';
+  setTimeout(() => { btn.textContent = wasEditing ? '更新する' : '問題を追加'; }, 2000);
 }
 
 function showAdminPanel() {
@@ -737,6 +788,7 @@ function showAdminPanel() {
   renderAdminList();
   renderQuestionList(); // 管理者モードで一覧を再描画
   document.getElementById('admin-form').addEventListener('submit', handleAdminSubmit);
+  document.getElementById('admin-cancel-btn').addEventListener('click', exitEditMode);
   panel.scrollIntoView({ behavior: 'smooth' });
 }
 

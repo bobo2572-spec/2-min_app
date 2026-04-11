@@ -732,16 +732,22 @@ function init() {
   updateNotificationButton(appData.notificationsEnabled !== false);
 
   renderQuestion();
-  renderQuestionList();
 
   // 問題一覧トグル
-  document.getElementById('list-toggle-btn')?.addEventListener('click', () => {
-    const listEl = document.getElementById('question-list');
-    const btn = document.getElementById('list-toggle-btn');
-    const opening = listEl.classList.toggle('hidden');
-    btn.textContent = opening ? '≡ 問題一覧' : '≡ 問題一覧 ▴';
-    if (!opening) renderQuestionList();
-  });
+  const listToggleBtn = document.getElementById('list-toggle-btn');
+  const questionListEl = document.getElementById('question-list');
+  if (listToggleBtn && questionListEl) {
+    listToggleBtn.addEventListener('click', () => {
+      if (questionListEl.classList.contains('hidden')) {
+        questionListEl.classList.remove('hidden');
+        listToggleBtn.textContent = '≡ 問題一覧 ▴';
+        renderQuestionList();
+      } else {
+        questionListEl.classList.add('hidden');
+        listToggleBtn.textContent = '≡ 問題一覧';
+      }
+    });
+  }
 
   nextBtn.addEventListener('click', handleNext);
   document.getElementById('notification-toggle')?.addEventListener('click', toggleNotification);

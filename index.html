@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="よむ2分">
     <link rel="apple-touch-icon" href="/2-min_app/icon-192.png">
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
     <div id="app">
@@ -31,6 +31,10 @@
                 </div>
             </div>
         </header>
+
+        <!-- 問題一覧 -->
+        <button id="list-toggle-btn" class="list-toggle-btn">≡ 問題一覧</button>
+        <div id="question-list" class="question-list glass hidden"></div>
 
         <!-- 通常のクイズカード -->
         <div class="glass" id="quiz-card">
@@ -67,6 +71,10 @@
             <h2 class="admin-title">管理者パネル</h2>
 
             <form id="admin-form" class="admin-form">
+                <div class="admin-row">
+                    <label for="admin-title">タイトル（短い単語）</label>
+                    <input type="text" id="admin-title" placeholder="例: 旅費精算" required>
+                </div>
                 <div class="admin-row">
                     <label for="admin-genre">ジャンル</label>
                     <input type="text" id="admin-genre" placeholder="例: 論説文" required>

@@ -4,6 +4,7 @@
 const builtinQuizData = [
   {
     "id": "q001",
+    "title": "キャンセル規定",
     "genre": "申込書・規約",
     "skillTag": "数量・条件",
     "passage": "本講座のキャンセル規定は以下の通りです。開催日の7日前以降のキャンセルについては、返金に応じられません。一方、開催日の8日前から13日前までのキャンセルは参加費の50％を、14日前以前のキャンセルは全額を返金します。なお、返金手数料は一律500円とし、返金分から差し引かれます。",
@@ -15,6 +16,7 @@ const builtinQuizData = [
   },
   {
     "id": "q002",
+    "title": "SNSと思考",
     "genre": "論説文",
     "skillTag": "筆者の主張",
     "passage": "SNSの普及は情報の伝達速度を飛躍的に高めたが、その速さが情報の「質」を保証することはない。むしろ、速すぎる拡散は、事実確認を置き去りにするリスクを孕んでいる。現代人に必要なのは、流れてくる情報を即座に受け入れる反射神経ではなく、その出典を疑い、立ち止まって検証する「思考のブレーキ」である。",
@@ -30,6 +32,7 @@ const builtinQuizData = [
   },
   {
     "id": "q003",
+    "title": "ミツバチのダンス",
     "genre": "説明文",
     "skillTag": "指示語",
     "passage": "ミツバチは「ダンス」によって仲間にエサ場の情報を伝える。エサ場が近い場合は円を描き、遠い場合は「8の字」に動きながら尻を振る。この複雑な行動には、太陽の位置を基準とした正確な方角と距離の情報が凝縮されている。これを発見した研究者たちは、昆虫が高度な抽象概念を扱っていることに驚愕した。",
@@ -45,6 +48,7 @@ const builtinQuizData = [
   },
   {
     "id": "q004",
+    "title": "旅費精算",
     "genre": "ビジネス",
     "skillTag": "実務・規定",
     "passage": "出張旅費規程の改定により、宿泊費と交通費の精算方法が変更されました。宿泊費の上限は一泊10,000円と定められ、上限を超える分は自己負担、上限以内は実費が支給されます。交通費は種別を問わず実費が全額支給されますが、タクシー利用時は金額や理由に関わらず領収書の提出が必須です。鉄道利用時は領収書の提出は不要です。",
@@ -60,6 +64,7 @@ const builtinQuizData = [
   },
   {
     "id": "q005",
+    "title": "AIと人間",
     "genre": "科学・社会",
     "skillTag": "対比構造",
     "passage": "AIが生成する知能は、膨大なデータの「平均値」を導き出す統計的な処理にすぎない。対して、人間が持つ知能の本質は、論理の穴を飛び越え、全く新しい概念を構築する「飛躍」にこそある。AIが既存の枠組みを効率化するツールであるならば、人間はその枠組み自体を作り変える開拓者であるべきだ。",
@@ -75,6 +80,7 @@ const builtinQuizData = [
   },
   {
     "id": "q006",
+    "title": "読書の転機",
     "genre": "随筆",
     "skillTag": "心情・理由",
     "passage": "子どもの頃、私は本を読むのが苦手だった。文字を追うだけで精一杯で、物語の世界に入り込む余裕などなかった。転機は中学生のとき、ある司書の先生が「あなたに合う本がきっとある」と言って、一冊の短い小説を手渡してくれたことだ。その夜、私は初めて夢中になって本を読み、気づけば朝になっていた。それ以来、読書は私にとって特別な時間になった。",
@@ -90,6 +96,7 @@ const builtinQuizData = [
   },
   {
     "id": "q007",
+    "title": "記憶と接続語",
     "genre": "説明文",
     "skillTag": "接続語",
     "passage": "人間の記憶は、意外にも「不正確」である。目撃者の証言が誤りを含むことは多く、研究によって繰り返し示されてきた。それにもかかわらず、私たちは自分の記憶を確かなものと信じて疑わない。むしろ、記憶を疑うことへの抵抗感が、誤った情報を固定させてしまう原因にもなっている。",
@@ -539,6 +546,69 @@ function rebuildQuizData() {
   quizData = [...customs, ...builtinQuizData];
 }
 
+function renderQuestionList() {
+  const listEl = document.getElementById('question-list');
+  const isAdmin = window.location.href.includes('admin');
+
+  const rows = quizData.map((q, i) => {
+    const isCustom = q.id.startsWith('custom_');
+    const numCell = isAdmin
+      ? `<td class="ql-num ${isCustom ? 'ql-num--deletable' : 'ql-num--builtin'}" data-index="${i}" data-id="${q.id}">${i + 1}</td>`
+      : `<td class="ql-num">${i + 1}</td>`;
+    return `<tr>
+      ${numCell}
+      <td class="ql-title" data-index="${i}">${q.title || q.genre}</td>
+      <td class="ql-genre">${q.genre}</td>
+    </tr>`;
+  }).join('');
+
+  listEl.innerHTML = `
+    <table class="question-table">
+      <thead><tr>
+        <th>No.</th><th>タイトル</th><th>ジャンル</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+
+  // タイトルクリック → その問題へジャンプ
+  listEl.querySelectorAll('.ql-title').forEach(el => {
+    el.addEventListener('click', () => {
+      state.currentIndex = parseInt(el.dataset.index, 10);
+      renderQuestion();
+      document.getElementById('question-list').classList.add('hidden');
+      document.getElementById('list-toggle-btn').textContent = '≡ 問題一覧';
+      document.getElementById('quiz-card').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  if (!isAdmin) return;
+
+  // 管理者: カスタム問題の番号クリック → 削除確認
+  listEl.querySelectorAll('.ql-num--deletable').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.index, 10);
+      const q = quizData[idx];
+      if (confirm(`「${q.title || q.genre}」を削除しますか？`)) {
+        const arr = loadCustomQuestions();
+        const ci = arr.findIndex(c => c.id === q.id);
+        if (ci !== -1) {
+          arr.splice(ci, 1);
+          saveCustomQuestions(arr);
+          rebuildQuizData();
+          renderQuestionList();
+          renderAdminList();
+        }
+      }
+    });
+  });
+
+  // 組み込み問題の番号クリック
+  listEl.querySelectorAll('.ql-num--builtin').forEach(el => {
+    el.addEventListener('click', () => alert('組み込み問題は削除できません。'));
+  });
+}
+
 function renderAdminList() {
   const list = document.getElementById('admin-list');
   const customs = loadCustomQuestions();
@@ -579,6 +649,7 @@ function handleAdminSubmit(e) {
 
   const newQ = {
     id: 'custom_' + Date.now(),
+    title: document.getElementById('admin-title').value.trim(),
     genre: document.getElementById('admin-genre').value.trim(),
     skillTag: document.getElementById('admin-skill').value.trim(),
     passage: document.getElementById('admin-passage').value.trim(),
@@ -598,6 +669,7 @@ function handleAdminSubmit(e) {
   saveCustomQuestions(arr);
   rebuildQuizData();
   renderAdminList();
+  renderQuestionList();
   e.target.reset();
 
   const btn = document.querySelector('.admin-submit-btn');
@@ -610,6 +682,7 @@ function showAdminPanel() {
   if (!panel.classList.contains('hidden')) return; // 既に表示済み
   panel.classList.remove('hidden');
   renderAdminList();
+  renderQuestionList(); // 管理者モードで一覧を再描画
   document.getElementById('admin-form').addEventListener('submit', handleAdminSubmit);
   panel.scrollIntoView({ behavior: 'smooth' });
 }
@@ -659,6 +732,17 @@ function init() {
   updateNotificationButton(appData.notificationsEnabled !== false);
 
   renderQuestion();
+  renderQuestionList();
+
+  // 問題一覧トグル
+  document.getElementById('list-toggle-btn')?.addEventListener('click', () => {
+    const listEl = document.getElementById('question-list');
+    const btn = document.getElementById('list-toggle-btn');
+    const opening = listEl.classList.toggle('hidden');
+    btn.textContent = opening ? '≡ 問題一覧' : '≡ 問題一覧 ▴';
+    if (!opening) renderQuestionList();
+  });
+
   nextBtn.addEventListener('click', handleNext);
   document.getElementById('notification-toggle')?.addEventListener('click', toggleNotification);
   document.getElementById('test-notification-btn')?.addEventListener('click', sendTestNotification);

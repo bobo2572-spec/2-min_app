@@ -322,6 +322,99 @@ body {
 }
 
 /* =====================================================================
+   Question List
+   ===================================================================== */
+.list-toggle-btn {
+    display: block;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-jp);
+    margin-bottom: 0.75rem;
+    transition: background 0.2s;
+}
+
+.list-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.question-list {
+    margin-bottom: 1rem;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+}
+
+.question-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.question-table th {
+    text-align: left;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    padding: 0 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--card-border);
+    font-weight: 600;
+}
+
+.question-table td {
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: middle;
+}
+
+.ql-num {
+    color: var(--text-secondary);
+    font-family: var(--font-outfit);
+    font-size: 0.8rem;
+    width: 2.5rem;
+    text-align: center;
+}
+
+.ql-num--deletable {
+    color: #f87171;
+    cursor: pointer;
+    font-weight: 700;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+
+.ql-num--deletable:hover {
+    background: rgba(248, 113, 113, 0.15);
+}
+
+.ql-num--builtin {
+    cursor: default;
+}
+
+.ql-title {
+    color: var(--accent-color);
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity 0.15s;
+}
+
+.ql-title:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+}
+
+.ql-genre {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* =====================================================================
    Admin Panel
    ===================================================================== */
 .admin-panel {
